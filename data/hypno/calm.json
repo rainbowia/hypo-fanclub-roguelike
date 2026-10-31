@@ -1,0 +1,27 @@
+{
+  "Id": "calm",
+  "Name": "冷静暗示",
+  "Description": "结算后理智+1（3天）",
+  "Weight": 10,
+  "DurationDays": 3,
+  "Effects": [
+    {
+      "Id": "h1",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Sanity",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

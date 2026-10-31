@@ -1,0 +1,25 @@
+{
+  "Id": "focus",
+  "Name": "专注暗示",
+  "Description": "本次结算产出×1.5（永久）",
+  "Weight": 10,
+  "DurationDays": -1,
+  "Effects": [
+    {
+      "Id": "h1",
+      "Trigger": "BeforeResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "MultiplyOutput",
+          "Args": {
+            "factor": "1.5"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "Id": "club_senpai",
+  "Name": "文学社的学姐",
+  "Title": "",
+  "Gender": "Female",
+  "Tags": [],
+  "Stats": [
+    6,
+    4,
+    5,
+    5
+  ],
+  "BaseOutput": 4,
+  "Rarity": 1,
+  "Recruitable": true,
+  "RecruitWeight": 10,
+  "Portrait": "cards/club_senpai.png",
+  "FullArt": "",
+  "Flavor": "会给大家泡茶。",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "OnRoundStart",
+      "OncePerRound": true,
+      "Description": "每圈开始：相邻成员理智+1",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "adjacent",
+            "stat": "Sanity",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ],
+  "Vars": {}
+}

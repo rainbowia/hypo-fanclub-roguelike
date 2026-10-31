@@ -1,0 +1,31 @@
+{
+  "SlotCount": 12,
+  "DaysPerStage": 7,
+  "StageTargetFormula": "300 * 1.6^(stage-1)",
+  "PleasureCarriesOver": true,
+  "StatMin": 0,
+  "StatMax": 9,
+  "AdjacentWraps": true,
+  "MovesPerDay": 3,
+  "DismissPerDay": 1,
+  "MovesRefreshDaily": true,
+  "RosterCapacity": 16,
+  "RecruitMin": 1,
+  "RecruitMax": 5,
+  "BossChoiceDay": 3,
+  "HypnoMax": 3,
+  "HypnoCostPleasure": 50,
+  "ItemSlotsPerCard": 1,
+  "StartingDeck": [
+    "lovebrain_girl",
+    "lovebrain_girl",
+    "nervous_guy",
+    "nervous_guy",
+    "club_senpai",
+    "club_manager"
+  ],
+  "StartingItems": [
+    "charm",
+    "calm_tea"
+  ]
+}

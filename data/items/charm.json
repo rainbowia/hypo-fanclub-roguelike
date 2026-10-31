@@ -1,0 +1,24 @@
+{
+  "Id": "charm",
+  "Name": "幸运御守",
+  "Icon": "",
+  "Description": "结算前：本次产出+3",
+  "Effects": [
+    {
+      "Id": "i1",
+      "Trigger": "BeforeResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddTempOutput",
+          "Args": {
+            "amount": "3"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

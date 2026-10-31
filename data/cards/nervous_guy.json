@@ -1,0 +1,81 @@
+{
+  "Id": "nervous_guy",
+  "Name": "紧张的弱鸡男",
+  "Title": "",
+  "Gender": "Male",
+  "Tags": [],
+  "Stats": [
+    5,
+    4,
+    5,
+    4
+  ],
+  "BaseOutput": -1,
+  "Rarity": 1,
+  "Recruitable": true,
+  "RecruitWeight": 10,
+  "Portrait": "cards/nervous_guy.png",
+  "FullArt": "",
+  "Flavor": "（GDD 样例卡）",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "理智-1，躯体-1",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Sanity",
+            "amount": "-1"
+          }
+        },
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Body",
+            "amount": "-1"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "e2",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "理智<3 时与相邻女性互动（产出=双方欲望之和）",
+      "Conditions": [
+        {
+          "Type": "StatCompare",
+          "Args": {
+            "target": "self",
+            "stat": "Sanity",
+            "op": "<",
+            "value": "3"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "Interact",
+          "Args": {
+            "target": "adjacent|gender=Female",
+            "pick": "all",
+            "produce": "self_desire + t_desire",
+            "selfStat": "Desire",
+            "selfStatDelta": "0",
+            "transformInto": "",
+            "keepItems": "false"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ],
+  "Vars": {}
+}

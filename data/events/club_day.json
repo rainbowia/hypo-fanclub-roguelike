@@ -1,0 +1,25 @@
+{
+  "Id": "club_day",
+  "Name": "社团活动日",
+  "Description": "本日开始时 +20 欢愉",
+  "Icon": "",
+  "Weight": 10,
+  "Effects": [
+    {
+      "Id": "v1",
+      "Trigger": "OnRoundStart",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "Produce",
+          "Args": {
+            "amount": "20"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

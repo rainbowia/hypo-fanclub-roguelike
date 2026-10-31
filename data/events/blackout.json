@@ -1,0 +1,25 @@
+{
+  "Id": "blackout",
+  "Name": "停电",
+  "Description": "本日每张卡产出-2",
+  "Icon": "",
+  "Weight": 6,
+  "Effects": [
+    {
+      "Id": "v1",
+      "Trigger": "AnyCardResolving",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddTempOutput",
+          "Args": {
+            "amount": "-2"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

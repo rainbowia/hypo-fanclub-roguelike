@@ -1,0 +1,32 @@
+{
+  "Id": "club_manager",
+  "Name": "社团经理",
+  "Title": "",
+  "Gender": "Male",
+  "Tags": [],
+  "Stats": [
+    5,
+    5,
+    5,
+    5
+  ],
+  "BaseOutput": 2,
+  "Rarity": 1,
+  "Recruitable": true,
+  "RecruitWeight": 10,
+  "Portrait": "cards/club_manager.png",
+  "FullArt": "",
+  "Flavor": "（代码块示例卡）",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "OnResolve",
+      "OncePerRound": false,
+      "Description": "产出额外 + 场上女性数×3（代码块示例）",
+      "Conditions": [],
+      "Actions": [],
+      "Script": "int n = S.Board.Count(c => c.Gender == Gender.Female);\nctx.Produce(n * 3);"
+    }
+  ],
+  "Vars": {}
+}

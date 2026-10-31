@@ -1,0 +1,34 @@
+{
+  "Id": "twin_moon",
+  "Name": "双月（占位Boss）",
+  "Icon": "",
+  "Portrait": "",
+  "Intro": "每次结算，所有卡爱情+1。占位，用来演示二选一。",
+  "TargetFormula": "180 * 1.5^(stage-1)",
+  "Rounds": 2,
+  "SurvivorMustLackTag": "",
+  "DefeatGalleryId": "",
+  "VictoryGalleryId": "",
+  "Weight": 10,
+  "MinStage": 1,
+  "Effects": [
+    {
+      "Id": "b1",
+      "Trigger": "AnyCardResolving",
+      "OncePerRound": false,
+      "Description": "每次结算，全场爱情+1",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "all",
+            "stat": "Love",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

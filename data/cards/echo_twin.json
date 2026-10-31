@@ -1,0 +1,59 @@
+{
+  "Id": "echo_twin",
+  "Name": "复读双子",
+  "Title": "",
+  "Gender": "Female",
+  "Tags": [],
+  "Stats": [
+    5,
+    5,
+    5,
+    5
+  ],
+  "BaseOutput": 3,
+  "Rarity": 1,
+  "Recruitable": true,
+  "RecruitWeight": 10,
+  "Portrait": "cards/echo_twin.png",
+  "FullArt": "",
+  "Flavor": "（自定义变量示例卡）",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "BeforeResolve",
+      "OncePerRound": false,
+      "Description": "每次结算产出+（已结算次数×2）",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddTempOutput",
+          "Args": {
+            "amount": "self_v_echo * 2"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "e2",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "SetVar",
+          "Args": {
+            "scope": "self",
+            "name": "echo",
+            "value": "v_echo + 1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ],
+  "Vars": {
+    "echo": "0"
+  }
+}

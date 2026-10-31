@@ -1,0 +1,33 @@
+{
+  "Id": "calm_tea",
+  "Name": "安神茶",
+  "Icon": "",
+  "Description": "结算后：50% 概率理智+1",
+  "Effects": [
+    {
+      "Id": "i1",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [
+        {
+          "Type": "Chance",
+          "Args": {
+            "percent": "50"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Sanity",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

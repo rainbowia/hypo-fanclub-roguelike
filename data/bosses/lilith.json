@@ -1,0 +1,131 @@
+{
+  "Id": "lilith",
+  "Name": "莉莉丝",
+  "Icon": "bosses/lilith_icon.png",
+  "Portrait": "bosses/lilith.png",
+  "Intro": "@boss.lilith.intro",
+  "TargetFormula": "150 * 1.5^(stage-1)",
+  "Rounds": 1,
+  "SurvivorMustLackTag": "cultist",
+  "DefeatGalleryId": "defeat_lilith",
+  "VictoryGalleryId": "victory_lilith",
+  "Weight": 10,
+  "MinStage": 1,
+  "Effects": [
+    {
+      "Id": "b1",
+      "Trigger": "BattleStart",
+      "OncePerRound": false,
+      "Description": "开场：7 号槽强制转换为欢愉信徒（继承道具）",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "Transform",
+          "Args": {
+            "target": "slot:7",
+            "into": "cultist",
+            "keepItems": "true"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "b2",
+      "Trigger": "BattleStart",
+      "OncePerRound": false,
+      "Description": "7 号槽为空时直接生成信徒（待定规则的临时处理）",
+      "Conditions": [
+        {
+          "Type": "TargetCount",
+          "Args": {
+            "target": "slot:7",
+            "op": "==",
+            "value": "0"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "Spawn",
+          "Args": {
+            "card": "cultist",
+            "slot": "7"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "b3",
+      "Trigger": "OnRoundStart",
+      "OncePerRound": false,
+      "Description": "每圈结算前，若场上无信徒，随机转换一张",
+      "Conditions": [
+        {
+          "Type": "TargetCount",
+          "Args": {
+            "target": "all|tag=cultist",
+            "op": "==",
+            "value": "0"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "Transform",
+          "Args": {
+            "target": "random:1",
+            "into": "cultist",
+            "keepItems": "true"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "b4",
+      "Trigger": "AnyCardResolving",
+      "OncePerRound": false,
+      "Description": "每张被结算的卡欲望+1",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Desire",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "b5",
+      "Trigger": "AnyCardDestroyed",
+      "OncePerRound": false,
+      "Description": "非信徒被撕毁：原位替换为信徒",
+      "Conditions": [
+        {
+          "Type": "HasTag",
+          "Args": {
+            "target": "self",
+            "tag": "cultist",
+            "not": "true"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "Spawn",
+          "Args": {
+            "card": "cultist",
+            "slot": "self"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}

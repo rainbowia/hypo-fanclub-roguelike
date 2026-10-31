@@ -1,0 +1,88 @@
+{
+  "Id": "cultist",
+  "Name": "欢愉信徒",
+  "Title": "",
+  "Gender": "None",
+  "Tags": [
+    "cultist"
+  ],
+  "Stats": [
+    6,
+    6,
+    6,
+    6
+  ],
+  "BaseOutput": 10,
+  "Rarity": 1,
+  "Recruitable": false,
+  "RecruitWeight": 10,
+  "Portrait": "cards/cultist.png",
+  "FullArt": "",
+  "Flavor": "",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "产出永久+1；理智-1 欲望+1 躯体-1",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "AddFixedOutput",
+          "Args": {
+            "target": "self",
+            "amount": "1"
+          }
+        },
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Sanity",
+            "amount": "-1"
+          }
+        },
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Desire",
+            "amount": "1"
+          }
+        },
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Body",
+            "amount": "-1"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "e2",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "与周围非信徒互动，每次自身欲望+1，完成后将其转化为信徒",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "Interact",
+          "Args": {
+            "target": "adjacent|!tag=cultist",
+            "pick": "all",
+            "produce": "self_desire + t_desire",
+            "selfStat": "Desire",
+            "selfStatDelta": "1",
+            "transformInto": "cultist",
+            "keepItems": "true"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ],
+  "Vars": {}
+}

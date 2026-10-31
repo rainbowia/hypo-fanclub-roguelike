@@ -1,0 +1,76 @@
+{
+  "Id": "lovebrain_girl",
+  "Name": "恋爱脑的女生",
+  "Title": "",
+  "Gender": "Female",
+  "Tags": [],
+  "Stats": [
+    5,
+    5,
+    5,
+    5
+  ],
+  "BaseOutput": 5,
+  "Rarity": 1,
+  "Recruitable": true,
+  "RecruitWeight": 10,
+  "Portrait": "cards/lovebrain_girl.png",
+  "FullArt": "",
+  "Flavor": "（GDD 样例卡）",
+  "Effects": [
+    {
+      "Id": "e1",
+      "Trigger": "OnResolve",
+      "OncePerRound": false,
+      "Description": "爱情>7 时额外产生 5 欢愉",
+      "Conditions": [
+        {
+          "Type": "StatCompare",
+          "Args": {
+            "target": "self",
+            "stat": "Love",
+            "op": ">",
+            "value": "7"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "Produce",
+          "Args": {
+            "amount": "5"
+          }
+        }
+      ],
+      "Script": ""
+    },
+    {
+      "Id": "e2",
+      "Trigger": "AfterResolve",
+      "OncePerRound": false,
+      "Description": "相邻有男性时，爱情+1",
+      "Conditions": [
+        {
+          "Type": "TargetCount",
+          "Args": {
+            "target": "adjacent|gender=Male",
+            "op": ">=",
+            "value": "1"
+          }
+        }
+      ],
+      "Actions": [
+        {
+          "Type": "AddStat",
+          "Args": {
+            "target": "self",
+            "stat": "Love",
+            "amount": "1"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ],
+  "Vars": {}
+}

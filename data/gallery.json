@@ -1,0 +1,30 @@
+[
+  {
+    "Id": "defeat_normal",
+    "Title": "未完成的一周",
+    "Image": "gallery/defeat_normal.png",
+    "UnlockEvent": "defeat:normal",
+    "Category": "defeat"
+  },
+  {
+    "Id": "defeat_lilith",
+    "Title": "莉莉丝的来访",
+    "Image": "gallery/defeat_lilith.png",
+    "UnlockEvent": "defeat:boss:lilith",
+    "Category": "defeat"
+  },
+  {
+    "Id": "victory_lilith",
+    "Title": "送走莉莉丝",
+    "Image": "gallery/victory_lilith.png",
+    "UnlockEvent": "victory:boss:lilith",
+    "Category": "victory"
+  },
+  {
+    "Id": "destroy_lovebrain",
+    "Title": "恋爱脑的结局",
+    "Image": "gallery/destroy_lovebrain.png",
+    "UnlockEvent": "destroy:lovebrain_girl",
+    "Category": "destroy"
+  }
+]

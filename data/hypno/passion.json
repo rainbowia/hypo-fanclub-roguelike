@@ -1,0 +1,25 @@
+{
+  "Id": "passion",
+  "Name": "热情暗示",
+  "Description": "结算时额外产出=爱情值",
+  "Weight": 6,
+  "DurationDays": -1,
+  "Effects": [
+    {
+      "Id": "h1",
+      "Trigger": "OnResolve",
+      "OncePerRound": false,
+      "Description": "",
+      "Conditions": [],
+      "Actions": [
+        {
+          "Type": "Produce",
+          "Args": {
+            "amount": "self_love"
+          }
+        }
+      ],
+      "Script": ""
+    }
+  ]
+}
