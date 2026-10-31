@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- 允许在更新的 .NET 运行时（如 .NET 9/10/11）上运行 net8.0 程序 -->
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+</Project>
