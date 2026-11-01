@@ -13,7 +13,7 @@ public static class Th
         White = C(245, 240, 242), Grey = C(150, 140, 145), Dark = C(40, 32, 36), Black = C(0, 0, 0),
         Red = C(230, 50, 70), Gold = C(240, 210, 130), Blue = C(120, 170, 220), Shadow = C(0, 0, 0, 140);
     // 四维颜色：理智◇灰 / 欲望💧蓝 / 爱情♡粉 / 躯体✦黄
-    public static readonly Color[] Stat = { C(170, 160, 165), C(120, 170, 220), C(230, 90, 130), C(240, 210, 130) };
+    public static readonly Color[] Stat = { C(232, 226, 210), C(240, 210, 130), C(230, 90, 130), C(120, 170, 220) };
     public static readonly string[] StatName = { "理智", "欲望", "爱情", "躯体" };
     public static Color A(Color c, float a) => new(c.R, c.G, c.B, (byte)(c.A * Math.Clamp(a, 0, 1)));
     public static Color Lerp(Color a, Color b, float t) => new(
@@ -226,6 +226,22 @@ public static class Ui
         if (h) c = Th.Lerp(c, Th.Pink, 0.35f);
         Panel(r, c, h ? Th.PinkPale : Th.A(Th.PinkPale, 0.25f), 0.3f);
         Text(label, r.X + r.Width / 2, r.Y + r.Height / 2 - size / 2, size, enabled ? Th.White : Th.Grey, Align.Center);
+        return enabled && Clicked(r);
+    }
+
+    /// <summary>图片按钮（普通/悬停/按下三张图），缺图时退回普通按钮。</summary>
+    public static bool ArtButton(Rectangle r, string normal, string hover, string pressed, string label, bool enabled = true, float size = 26, Color? textColor = null)
+    {
+        var n = Art.T(normal);
+        if (!n.HasValue) return Button(r, label, enabled, null, size);
+        bool h = enabled && Hover(r);
+        string img = !enabled ? normal : h && Down && pressed != null ? pressed : h && hover != null ? hover : normal;
+        var tint = enabled ? Color.White : Th.C(120, 110, 115);
+        if (h && img == normal) tint = Th.C(255, 225, 235);
+        Art.Stretch(img, r, tint);
+        var tc = textColor ?? Th.White;
+        Text(label, r.X + r.Width / 2 + 2, r.Y + r.Height / 2 - size / 2 + 2, size, Th.A(Th.Shadow, enabled ? 1 : 0.4f), Align.Center, TextStyle.Title);
+        Text(label, r.X + r.Width / 2, r.Y + r.Height / 2 - size / 2, size, enabled ? tc : Th.Grey, Align.Center, TextStyle.Title);
         return enabled && Clicked(r);
     }
 

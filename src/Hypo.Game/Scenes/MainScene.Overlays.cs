@@ -19,10 +19,10 @@ public partial class MainScene
     // ======================= 手机 =======================
     static readonly (string name, string sub, string icon)[] Apps =
     {
-        ("Member", "联系人", "assets/ui/app_member.png"),
-        ("H.Y.P.O.", "催眠", "assets/ui/app_hypo.png"),
-        ("Keeper", "道具", "assets/ui/app_keeper.png"),
-        ("Guest", "图鉴", "assets/ui/app_guest.png"),
+        ("Member", "联系人", Art.P(Art.AppMember)),
+        ("H.Y.P.O.", "催眠", Art.P(Art.AppHypo)),
+        ("Keeper", "道具", Art.P(Art.AppKeeper)),
+        ("Guest", "图鉴", Art.P(Art.AppGuest)),
     };
 
     void DrawPhone()
@@ -171,7 +171,7 @@ public partial class MainScene
                     {
                         var t = Assets.Tex(boss.Icon);
                         if (t.HasValue) Assets.Draw(t.Value, Ui.R(r.X + 10, r.Y + 60, r.Width - 20, r.Width - 20), Color.White);
-                        else Ui.Text("☠", r.X + r.Width / 2, r.Y + 80, 90, Th.PinkHot, Align.Center);
+                        else if (!Art.Draw(Art.Boss, Ui.R(r.X + 15, r.Y + 50, r.Width - 30, r.Width - 30), Color.White)) Ui.Text("☠", r.X + r.Width / 2, r.Y + 80, 90, Th.PinkHot, Align.Center);
                         Ui.Text(App.Db.T(boss.Name), r.X + r.Width / 2, r.Y + r.Height - 50, 22, Th.White, Align.Center);
                     }
                     else Ui.Text("？", r.X + r.Width / 2, r.Y + 120, 80, Th.Grey, Align.Center);
@@ -185,7 +185,10 @@ public partial class MainScene
                 else if (isNow) DrawRing(new Vector2(r.X + r.Width / 2, r.Y + 92), 30, 40, 0, 360, 36, Th.Gold);
                 // 特殊事件
                 if (stage == S.Stage && S.DayEvents.TryGetValue(d, out var ev) && App.Db.Events.TryGetValue(ev, out var evd))
-                    Ui.Text("! " + App.Db.T(evd.Name), r.X + 10, r.Y + 150, 18, Th.Gold);
+                {
+                    if (Art.Draw(Art.Event, Ui.R(r.X + 8, r.Y + 142, 28, 30), Color.White)) Ui.Text(App.Db.T(evd.Name), r.X + 40, r.Y + 148, 18, Th.Gold);
+                    else Ui.Text("! " + App.Db.T(evd.Name), r.X + 10, r.Y + 150, 18, Th.Gold);
+                }
                 // 获得/失去小 icon
                 if (rec != null)
                 {
@@ -203,9 +206,12 @@ public partial class MainScene
     static void MiniIcon(float x, float y, bool gained)
     {
         var r = Ui.R(x, y, 26, 30);
-        DrawRectangleRounded(r, 0.2f, 4, Th.PinkPale);
-        DrawCircle((int)(x + 13), (int)(y + 11), 6, Th.Panel);
-        DrawRectangle((int)x + 6, (int)y + 18, 14, 10, Th.Panel);
+        if (!Art.Draw(Art.Person, r, gained ? Color.White : Th.C(150, 130, 140)))
+        {
+            DrawRectangleRounded(r, 0.2f, 4, Th.PinkPale);
+            DrawCircle((int)(x + 13), (int)(y + 11), 6, Th.Panel);
+            DrawRectangle((int)x + 6, (int)y + 18, 14, 10, Th.Panel);
+        }
         Ui.Text(gained ? "✓" : "×", x + 24, y - 8, 18, gained ? Th.Pink : Th.Red);
     }
 
@@ -253,7 +259,7 @@ public partial class MainScene
             }
             if (Ui.Clicked(r)) { G.Recruit(offer[i]); return; }
         }
-        if (Ui.Button(Ui.R(700, 800, 200, 56), "放弃", true, Th.Panel, 24)) G.Recruit(null);
+        if (Ui.ArtButton(Ui.R(680, 790, 240, 84), Art.Cancel, null, null, "放弃", true, 24)) G.Recruit(null);
     }
 
     void DrawBossChoice()

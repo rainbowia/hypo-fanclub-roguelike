@@ -57,6 +57,7 @@ public class TitleScene : Scene, IUiHost
             for (int i = 0; i < 14; i++)
                 DrawRing(c, 30 + i * 32, 44 + i * 32, _t * 40 + i * 25, _t * 40 + i * 25 + 250, 48, Th.A(Th.Pink, 0.12f + 0.02f * (i % 3)));
         }
+        if (!bg.HasValue) Art.Draw(Art.TutFigure, Ui.R(Ui.W * 0.55f, 120, 640, 760), Color.White);
         var logo = Assets.UiTex("logo");
         if (logo.HasValue) Assets.Draw(logo.Value, Ui.R(80, 90, 600, 220), Color.White);
         else
@@ -108,7 +109,8 @@ public class GalleryScene : Scene
             Ui.Panel(r, open ? Th.Panel : Th.Dark, Ui.Hover(r) && open ? Th.Pink : null);
             var tex = open ? Assets.Tex(g.Image) : null;
             if (tex.HasValue) Assets.Draw(tex.Value, new Rectangle(r.X + 6, r.Y + 6, r.Width - 12, r.Height - 12), Color.White, true);
-            else Ui.Text(open ? "（无图）" : "？", r.X + r.Width / 2, r.Y + r.Height / 2 - 18, 32, Th.Grey, Align.Center);
+            else if (open || !Art.Draw(Art.Locked, new Rectangle(r.X + 6, r.Y + 6, r.Width - 12, r.Height - 12), Color.White))
+                Ui.Text(open ? "（无图）" : "？", r.X + r.Width / 2, r.Y + r.Height / 2 - 18, 32, Th.Grey, Align.Center);
             Ui.Text(open ? App.Db.T(g.Title) : "？？？", r.X + 4, r.Y + r.Height + 8, 20, open ? Th.PinkPale : Th.Grey);
             if (open && Ui.Clicked(r)) _view = i;
         }

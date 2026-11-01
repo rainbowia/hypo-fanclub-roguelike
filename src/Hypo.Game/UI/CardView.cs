@@ -18,7 +18,7 @@ public static class CardView
         var shadow = new Rectangle(r.X + 6, r.Y + 8, r.Width, r.Height);
         DrawRectangleRounded(shadow, 0.06f, 6, Th.A(Th.Black, 0.5f * alpha));
         if (frame.HasValue) Assets.Draw(frame.Value, r, Th.A(Color.White, alpha));
-        else DrawRectangleRounded(r, 0.06f, 6, Th.A(Th.PinkPale, alpha));
+        else if (!Art.Stretch(Art.CardBack, r, Th.A(Color.White, alpha))) DrawRectangleRounded(r, 0.06f, 6, Th.A(Th.PinkPale, alpha));
 
         var art = new Rectangle(r.X + r.Width * 0.06f, r.Y + r.Width * 0.06f, r.Width * 0.88f, r.Height * 0.66f);
         var tex = Assets.Tex(def?.Portrait);
@@ -41,8 +41,17 @@ public static class CardView
             for (int i = 0; i < 4; i++)
             {
                 var b = new Rectangle(r.X + 10 * s + i * (r.Width - 20 * s) / 4, nameBar.Y + nameBar.Height + 6 * s, (r.Width - 20 * s) / 4 - 4 * s, 22 * s);
-                DrawRectangleRounded(b, 0.4f, 4, Th.A(Th.Stat[i], alpha));
-                Ui.Text(c.Stats[i].ToString(), b.X + b.Width / 2, b.Y + 1 * s, 19 * s, Th.A(Th.Dark, alpha), Align.Center);
+                if (Art.T(Art.StatFlat[i]).HasValue)
+                {
+                    DrawRectangleRounded(b, 0.4f, 4, Th.A(Th.Dark, alpha * 0.85f));
+                    Art.Draw(Art.StatFlat[i], new Rectangle(b.X + 1 * s, b.Y + 2 * s, b.Height - 4 * s, b.Height - 4 * s), Th.A(Th.Stat[i], alpha));
+                    Ui.Text(c.Stats[i].ToString(), b.X + b.Width - 4 * s, b.Y + 1 * s, 19 * s, Th.A(Th.White, alpha), Align.Right);
+                }
+                else
+                {
+                    DrawRectangleRounded(b, 0.4f, 4, Th.A(Th.Stat[i], alpha));
+                    Ui.Text(c.Stats[i].ToString(), b.X + b.Width / 2, b.Y + 1 * s, 19 * s, Th.A(Th.Dark, alpha), Align.Center);
+                }
             }
         // 产出角标
         if (c != null)
@@ -59,7 +68,7 @@ public static class CardView
 
     public static void Empty(Rectangle r, float alpha, bool hover)
     {
-        var t = Assets.UiTex("slot_empty");
+        var t = Art.T(Art.AddNew) ?? Assets.UiTex("slot_empty");
         if (t.HasValue) { Assets.Draw(t.Value, r, Th.A(Color.White, alpha)); return; }
         DrawRectangleRoundedLinesEx(r, 0.08f, 6, 3, Th.A(hover ? Th.Pink : Th.Grey, alpha * 0.8f));
         Ui.Text("+", r.X + r.Width / 2, r.Y + r.Height / 2 - r.Height * 0.15f, r.Height * 0.3f, Th.A(hover ? Th.Pink : Th.Grey, alpha), Align.Center);
