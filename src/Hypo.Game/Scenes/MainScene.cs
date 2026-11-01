@@ -133,7 +133,7 @@ public partial class MainScene : Scene
         if (modal) Ui.Consumed = true;
 
         DrawBackground();
-        DrawRing();
+        DrawWheel();
         if (_seatView) DrawSeatUi(); else DrawHud();
         DrawPhone();
 
@@ -172,7 +172,7 @@ public partial class MainScene : Scene
     }
 
     // ======================= 轮盘 =======================
-    void DrawRing()
+    void DrawWheel()
     {
         // 正面：椭圆环（近大远小）；俯视：正圆。按 _top 插值。
         var center = Vector2.Lerp(new Vector2(800, 300), new Vector2(800, 430), _top);
