@@ -74,7 +74,7 @@ public static class Program
         InitAudioDevice();
         if (App.Settings.Fullscreen) ToggleFullscreen();
 
-        Fonts.Init(Path.Combine(App.DataDir, "assets", "fonts", "main.ttf"));
+        Fonts.Init(Path.Combine(App.DataDir, "assets", "fonts"));
         App.ReloadContent();
 
         var canvas = LoadRenderTexture(Ui.W, Ui.H);
@@ -100,7 +100,7 @@ public static class Program
             Ui.Consumed = modal;
             App.Current.Draw();
             if (modal) { Ui.Consumed = false; App.SettingsUi.Draw(); }
-            if (!Fonts.HasFontFile) Ui.Text("缺少字体 data/assets/fonts/main.ttf (Chinese font missing)", 10, Ui.H - 24, 18, Th.Red);
+            if (!Fonts.HasFontFile) Ui.Text("缺少中文字体：请把 .ttf 放进 data/assets/fonts/ (Chinese font missing)", 10, Ui.H - 24, 18, Th.Red);
             EndTextureMode();
 
             BeginDrawing();

@@ -13,14 +13,24 @@ HypoFanclub.sln
 
 ## 运行
 
-需要 .NET 8 SDK。
+需要 .NET 8 或更新的 SDK。双击：
 
-```bash
-dotnet run --project src/Hypo.Game      # 游戏
-dotnet run --project src/Hypo.Editor    # 编辑器（Windows）
-```
+- `play.bat` — 自动 git pull 更新，然后启动游戏
+- `editor.bat` — 自动更新，然后启动编辑器
+- `update.bat` — 只更新并编译
 
-**必须放一个中文字体**：`data/assets/fonts/main.ttf`（思源黑体 / 站酷等可商用字体）。字形按需加载，不用预先列字表。
+或命令行：`dotnet run --project src/Hypo.Game` / `dotnet run --project src/Hypo.Editor`
+
+**字体**放在 `data/assets/fonts/`（不进 git，每台电脑自己放），按文件名自动识别：
+
+| 槽位 | 文件名包含 |
+|---|---|
+| 标题·中文 | `shijinhei` |
+| 正文·中文 | `wangxingyuan` |
+| 标题·英文 | `fulbo` 或 `retro` |
+| 正文·英文 | `krist` |
+
+也可以写 `fonts.json` 指定。Raylib 不支持 CFF 格式的 .otf，需要转成 .ttf。
 
 > ⚠️ 这版代码是在没有 .NET 编译器的环境里写的，第一次编译可能有少量小错误（拼写/API 版本），按报错修即可，结构不受影响。
 

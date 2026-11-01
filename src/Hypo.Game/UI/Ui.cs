@@ -20,46 +20,145 @@ public static class Th
         (byte)(a.R + (b.R - a.R) * t), (byte)(a.G + (b.G - a.G) * t), (byte)(a.B + (b.B - a.B) * t), (byte)(a.A + (b.A - a.A) * t));
 }
 
+public enum TextStyle { Body, Title }
+
 /// <summary>
-/// 字体：按需加载字形（遇到新汉字时下一帧重建字体），所以任意文本都能显示，不用预先列字表。
-/// 字体文件：data/assets/fonts/main.ttf （推荐 思源黑体/站酷系列 等可商用字体）
+/// 字体：标题/正文 × 中文/英文 四个槽位。绘制时按字符自动分段：ASCII 用英文字体，其它用中文字体。
+/// 中文字体按需加载字形（遇到新字下一帧重建），所以任意文本都能显示，不用预先列字表。
+///
+/// 放在 data/assets/fonts/，按文件名关键字自动识别：
+///   标题中文：*shijinhei*   正文中文：*wangxingyuan*
+///   标题英文：*fulbo* / *retro*   正文英文：*krist*
+/// 想换字体：改文件名，或写 data/assets/fonts/fonts.json：
+///   { "title_cn": "xxx.ttf", "body_cn": "...", "title_en": "...", "body_en": "..." }
+/// 缺哪个就回退：英文→同风格中文→另一风格中文→main.ttf→Raylib 默认字体。
+/// 注意：Raylib 不支持 CFF 格式的 .otf，请转换成 .ttf。
 /// </summary>
 public static class Fonts
 {
-    static Font _font; static bool _loaded, _dirty;
-    static readonly HashSet<int> _cps = new();
-    static string _path;
-    const int BaseSize = 48;
+    const int BaseSize = 64;
 
-    public static void Init(string path)
+    class Slot
     {
-        _path = path;
-        for (int c = 32; c < 127; c++) _cps.Add(c);
-        foreach (var c in "欢愉理智欲望爱情躯体周一二三四五六日八开始结算选座完成请离设置画廊存档读取返回联系人催眠道具图鉴") _cps.Add(c);
-        Rebuild();
-    }
-    static void Rebuild()
-    {
-        if (_loaded && _font.Texture.Id != GetFontDefault().Texture.Id) UnloadFont(_font);
-        if (File.Exists(_path))
+        public string Path; public bool Cjk; public Font Font; public bool Loaded, Dirty;
+        public readonly HashSet<int> Cps = new();
+        public void Need(string s)
         {
-            var arr = _cps.ToArray();
-            _font = LoadFontEx(_path, BaseSize, arr, arr.Length);
-            SetTextureFilter(_font.Texture, TextureFilter.Bilinear);
+            if (!Cjk) return;
+            foreach (var r in s.EnumerateRunes()) if (r.Value >= 128 && Cps.Add(r.Value)) Dirty = true;
         }
-        else _font = GetFontDefault();
-        _loaded = true; _dirty = false;
+        public void Build()
+        {
+            if (Loaded) UnloadFont(Font);
+            var arr = Cps.ToArray();
+            Font = LoadFontEx(Path, BaseSize, arr, arr.Length);
+            SetTextureFilter(Font.Texture, TextureFilter.Bilinear);
+            Loaded = true; Dirty = false;
+        }
     }
-    /// <summary>每帧结束调用一次。</summary>
-    public static void EndFrame() { if (_dirty) Rebuild(); }
-    public static bool HasFontFile => File.Exists(_path);
 
-    static void Need(string s)
+    // [style, 0=cn 1=en]
+    static readonly Slot[,] _slots = new Slot[2, 2];
+    public static bool HasFontFile { get; private set; }
+
+    public static void Init(string dir)
     {
-        foreach (var r in s.EnumerateRunes()) if (_cps.Add(r.Value)) _dirty = true;
+        var files = Directory.Exists(dir)
+            ? Directory.GetFiles(dir).Where(f => f.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".otf", StringComparison.OrdinalIgnoreCase)).ToList()
+            : new List<string>();
+        string Find(params string[] keys) => files.FirstOrDefault(f => keys.Any(k => System.IO.Path.GetFileName(f).Contains(k, StringComparison.OrdinalIgnoreCase)));
+
+        var map = new Dictionary<string, string>
+        {
+            ["title_cn"] = Find("shijinhei", "title_cn"), ["body_cn"] = Find("wangxingyuan", "body_cn"),
+            ["title_en"] = Find("fulbo", "retro", "title_en"), ["body_en"] = Find("krist", "body_en"),
+        };
+        var cfg = System.IO.Path.Combine(dir, "fonts.json");
+        if (File.Exists(cfg))
+            try
+            {
+                var d = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(cfg));
+                foreach (var kv in d) if (File.Exists(System.IO.Path.Combine(dir, kv.Value))) map[kv.Key] = System.IO.Path.Combine(dir, kv.Value);
+            }
+            catch { }
+        var main = System.IO.Path.Combine(dir, "main.ttf");
+        if (File.Exists(main)) { map["title_cn"] ??= main; map["body_cn"] ??= main; }
+        map["title_cn"] ??= map["body_cn"]; map["body_cn"] ??= map["title_cn"];
+
+        var common = "欢愉理智欲望爱情躯体周一二三四五六日八开始结算选座完成请离设置画廊存档读取返回联系人催眠道具图鉴";
+        Slot Make(string path, bool cjk)
+        {
+            if (path == null || path.EndsWith(".otf", StringComparison.OrdinalIgnoreCase) && IsCff(path)) return null;
+            var s = new Slot { Path = path, Cjk = cjk };
+            for (int c = 32; c < 127; c++) s.Cps.Add(c);
+            if (cjk) foreach (var c in common) s.Cps.Add(c);
+            s.Build();
+            return s.Font.Texture.Id == 0 ? null : s;
+        }
+        _slots[0, 0] = Make(map["body_cn"], true);
+        _slots[1, 0] = map["title_cn"] == map["body_cn"] ? _slots[0, 0] : Make(map["title_cn"], true) ?? _slots[0, 0];
+        _slots[0, 0] ??= _slots[1, 0];
+        _slots[0, 1] = Make(map["body_en"], false) ?? _slots[0, 0];
+        _slots[1, 1] = Make(map["title_en"], false) ?? _slots[1, 0];
+        HasFontFile = _slots[0, 0] != null;
     }
-    public static Font F(string s) { Need(s); return _font; }
-    public static Vector2 Measure(string s, float size) => MeasureTextEx(F(s), s, size, 1);
+
+    static bool IsCff(string path)
+    {
+        try
+        {
+            using var fs = File.OpenRead(path); var b = new byte[4]; fs.Read(b, 0, 4);
+            return b[0] == 'O' && b[1] == 'T' && b[2] == 'T' && b[3] == 'O';
+        }
+        catch { return false; }
+    }
+
+    /// <summary>每帧结束调用一次：重建有新字形的中文字体。</summary>
+    public static void EndFrame()
+    {
+        foreach (var s in _slots) if (s != null && s.Dirty) s.Build();
+    }
+
+    static Font Pick(TextStyle st, bool ascii, out Slot slot)
+    {
+        slot = _slots[(int)st, ascii ? 1 : 0];
+        return slot != null ? slot.Font : GetFontDefault();
+    }
+
+    /// <summary>按 ASCII/非 ASCII 切分成段。</summary>
+    static IEnumerable<(string text, bool ascii)> Runs(string s)
+    {
+        int start = 0; bool? cur = null;
+        for (int i = 0; i < s.Length; i++)
+        {
+            bool a = s[i] < 128;
+            if (cur.HasValue && a != cur.Value) { yield return (s[start..i], cur.Value); start = i; }
+            cur = a;
+        }
+        if (s.Length > start) yield return (s[start..], cur ?? true);
+    }
+
+    public static Vector2 Measure(string s, float size, TextStyle st = TextStyle.Body)
+    {
+        float w = 0, h = size;
+        foreach (var (t, a) in Runs(s))
+        {
+            var f = Pick(st, a, out var slot); slot?.Need(t);
+            var m = MeasureTextEx(f, t, size, 1); w += m.X + 1; h = Math.Max(h, m.Y);
+        }
+        return new Vector2(Math.Max(0, w - 1), h);
+    }
+
+    public static void Draw(string s, Vector2 pos, float size, Color c, TextStyle st = TextStyle.Body)
+    {
+        float x = pos.X;
+        foreach (var (t, a) in Runs(s))
+        {
+            var f = Pick(st, a, out var slot); slot?.Need(t);
+            DrawTextEx(f, t, new Vector2(MathF.Round(x), MathF.Round(pos.Y)), size, 1, c);
+            x += MeasureTextEx(f, t, size, 1).X + 1;
+        }
+    }
 }
 
 public enum Align { Left, Center, Right }
@@ -81,17 +180,18 @@ public static class Ui
 
     public static Rectangle R(float x, float y, float w, float h) => new(x, y, w, h);
 
-    public static void Text(string s, float x, float y, float size, Color c, Align a = Align.Left)
+    public static void Text(string s, float x, float y, float size, Color c, Align a = Align.Left, TextStyle st = TextStyle.Body)
     {
         if (string.IsNullOrEmpty(s)) return;
-        var f = Fonts.F(s);
-        if (a != Align.Left) { var m = Fonts.Measure(s, size); x -= a == Align.Center ? m.X / 2 : m.X; }
-        DrawTextEx(f, s, new Vector2(MathF.Round(x), MathF.Round(y)), size, 1, c);
+        if (a != Align.Left) { var m = Fonts.Measure(s, size, st); x -= a == Align.Center ? m.X / 2 : m.X; }
+        Fonts.Draw(s, new Vector2(x, y), size, c, st);
     }
+    /// <summary>标题字体 + 阴影。</summary>
     public static void TextShadow(string s, float x, float y, float size, Color c, Align a = Align.Left)
     {
-        Text(s, x + 2, y + 2, size, Th.Shadow, a); Text(s, x, y, size, c, a);
+        Text(s, x + 2, y + 2, size, Th.A(Th.Shadow, c.A / 255f), a, TextStyle.Title); Text(s, x, y, size, c, a, TextStyle.Title);
     }
+    public static void Title(string s, float x, float y, float size, Color c, Align a = Align.Left) => Text(s, x, y, size, c, a, TextStyle.Title);
     /// <summary>自动换行文本，返回占用高度。</summary>
     public static float Wrap(string s, Rectangle box, float size, Color c)
     {

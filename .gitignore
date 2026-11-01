@@ -3,3 +3,8 @@ obj/
 .vs/
 *.user
 mods/*.dll
+# 字体有授权限制，不要提交到公开仓库
+data/assets/fonts/*.ttf
+data/assets/fonts/*.otf
+data/assets/fonts/*.TTF
+data/assets/fonts/*.OTF
