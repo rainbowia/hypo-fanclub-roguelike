@@ -105,6 +105,25 @@ GDD 中所有"待定"数值都在 `data/rules.json`（编辑器"规则"页）。
 
 手机四个 APP 暂定：**Member=联系人**、**H.Y.P.O.=催眠**、**Keeper=道具**、**Guest=图鉴**（按美术稿上的四个词对应，可改 `MainScene.Overlays.cs` 顶部 `Apps`）。
 
+## Hypo Studio 编辑器（`editor.bat`）
+
+类 Unity 布局：左 **层级** · 中 **场景/主编辑区** · 右 **检查器** · 下 **项目 / 控制台**。顶部切换工作区：
+
+- **UI 布局**：做界面。
+  - 从「项目」面板把图片拖到画布 = 新建图片对象；拖到检查器的“图片”栏 = 换图
+  - 拖动移动，拖角点缩放（Shift 保持比例，Alt 不吸附），方向键微调（Shift ×10），Ctrl+D 复制，Del 删除，Ctrl+Z 撤销
+  - 层级里拖动对象 = 改父子关系；右键菜单可上移/下移/置顶
+  - 类型：Group / Image / Text / Button / Panel / Bar；图片模式支持 **九宫格**（对话框、面板随意拉伸不变形）
+  - 文字里写 `{pleasure} / {target}` 显示游戏数据；“显示条件”写 `phase == Prepare`、`moves > 0` 等
+  - **行为（对象编程）**：事件（点击/移入/显示/每帧）→ 命令（StartRound、OpenCalendar、Show 对象名…）→ 可选 C# 代码
+  - 「预览运行」直接在画布里点按钮测试；「预览变量」改样例数据
+  - 布局设置里“参考图”可以放草图对位；“替换内置界面”填 `hud` 并勾“启用” → 游戏主场景 HUD 改用这个布局（`title` = 标题界面）
+- **卡牌 / Boss / 道具 / 催眠 / 每日事件**：左列表，中间效果编辑（积木 + 代码块，卡牌带卡面预览），右边属性
+- **画廊 / 规则 / 文本表 / 沙盒测试**
+
+Ctrl+S 保存全部，F5 保存并运行游戏。帮助菜单里有选择器、公式、代码 API、UI 变量与命令的说明。
+旧版 WinForms 编辑器仍保留：`editor-legacy.bat`。
+
 ## 存档
 
 `%AppData%/HypoFanclub/`：`save_0.json`（自动存档，每天开始时）、`save_1..3.json`、`profile.json`（画廊解锁，跨局）、`settings.json`。
