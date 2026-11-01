@@ -272,13 +272,13 @@ public class SandboxWorkspace : IWorkspace
         var cards = EffectsEditor.CardIds().Prepend("").ToList();
         for (int i = 0; i < 12; i++)
         {
-            ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted($"座位 {i + 1}"); ImGui.SameLine(70); ImGui.SetNextItemWidth(-1);
+            ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted($"座位 {i + 1}"); ImGui.SameLine(70 * Theme.FontSize / 18f); ImGui.SetNextItemWidth(-1);
             Inspector.Combo("##s" + i, ref _slots[i], cards);
         }
         ImGui.Separator();
-        ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted("Boss"); ImGui.SameLine(70); ImGui.SetNextItemWidth(-1);
+        ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted("Boss"); ImGui.SameLine(70 * Theme.FontSize / 18f); ImGui.SetNextItemWidth(-1);
         Inspector.Combo("##boss", ref _boss, (Hypo.Game.App.Db?.Bosses.Keys ?? Enumerable.Empty<string>()).Prepend(""));
-        ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted("圈数"); ImGui.SameLine(70); ImGui.SetNextItemWidth(-1);
+        ImGui.AlignTextToFramePadding(); ImGui.TextUnformatted("圈数"); ImGui.SameLine(70 * Theme.FontSize / 18f); ImGui.SetNextItemWidth(-1);
         ImGui.SliderInt("##r", ref _rounds, 1, 10);
         if (ImGui.Button("保存并运行", new Vector2(-1, 34))) Run();
     }

@@ -77,8 +77,6 @@ public static class Program
         Fonts.Init(Path.Combine(App.DataDir, "assets", "fonts"));
         App.ReloadContent();
 
-        var canvas = LoadRenderTexture(Ui.W, Ui.H);
-        SetTextureFilter(canvas.Texture, TextureFilter.Bilinear);
         App.Go(new TitleScene());
 
         while (!WindowShouldClose() && !App.Quit)
@@ -91,8 +89,12 @@ public static class Program
             Ui.Consumed = false;
             float dt = GetFrameTime();
 
-            BeginTextureMode(canvas);
-            ClearBackground(Th.Bg);
+            // 直接按屏幕实际分辨率绘制：坐标仍是 1600x900 虚拟画布，由 Camera2D 缩放（清晰 + MSAA 抗锯齿）
+            Ui.Scale = scale; Ui.Offset = offset;
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode2D(new Camera2D { Offset = offset, Target = Vector2.Zero, Rotation = 0, Zoom = scale });
+            DrawRectangle(0, 0, Ui.W, Ui.H, Th.Bg);
             // 设置面板在最上层，先处理它的输入
             // 即时模式 UI：按钮在 Draw 里画+判定点击。打开模态层时先屏蔽下层点击。
             bool modal = App.SettingsUi.Open;
@@ -101,12 +103,12 @@ public static class Program
             App.Current.Draw();
             if (modal) { Ui.Consumed = false; App.SettingsUi.Draw(); }
             if (!Fonts.HasFontFile) Ui.Text("缺少中文字体：请把 .ttf 放进 data/assets/fonts/ (Chinese font missing)", 10, Ui.H - 24, 18, Th.Red);
-            EndTextureMode();
-
-            BeginDrawing();
-            ClearBackground(Color.Black);
-            DrawTexturePro(canvas.Texture, new Rectangle(0, 0, Ui.W, -Ui.H),
-                new Rectangle(offset.X, offset.Y, Ui.W * scale, Ui.H * scale), Vector2.Zero, 0, Color.White);
+            EndMode2D();
+            // 黑边（盖住溢出画布的内容）
+            int sw = GetScreenWidth(), sh = GetScreenHeight();
+            if (offset.X > 0) { DrawRectangle(0, 0, (int)offset.X, sh, Color.Black); DrawRectangle((int)(offset.X + Ui.W * scale), 0, sw, sh, Color.Black); }
+            if (offset.Y > 0) { DrawRectangle(0, 0, sw, (int)offset.Y, Color.Black); DrawRectangle(0, (int)(offset.Y + Ui.H * scale), sw, sh, Color.Black); }
+            Sfx.Update();
             EndDrawing();
             Fonts.EndFrame();
         }

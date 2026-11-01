@@ -150,12 +150,26 @@ public class LayoutView
                 float t = (float)(UiBind.Num(n.BarValue, Host) / Math.Max(1e-6, UiBind.Num(n.BarMax, Host)));
                 DrawRectangleRounded(r, n.Round, 8, Col(n.FillColor, op));
                 t = Math.Clamp(t, 0, 1);
-                if (t > 0) DrawRectangleRounded(new Rectangle(r.X, r.Y, Math.Max(r.Height * n.Round, r.Width * t), r.Height), n.Round, 8, Col(n.BarColor, op));
+                if (Assets.Tex(n.FillImage) is { } fillTex) { if (t > 0) Art.Part(fillTex, 0, 0, t, 1, new Rectangle(r.X, r.Y, r.Width * t, r.Height), Col(n.Tint, op)); }
+                else if (t > 0) DrawRectangleRounded(new Rectangle(r.X, r.Y, Math.Max(r.Height * n.Round, r.Width * t), r.Height), n.Round, 8, Col(n.BarColor, op));
                 DrawImage(n, r, op, hover);
                 Border(n, r, op);
                 break;
             case UiNodeType.Group:
                 if (EditorMode) Dashed(r, 0.25f);
+                if (EditorMode && n.Name == "转盘")   // 预览转盘：椭圆 + 12 个座位
+                {
+                    var c = new Vector2(r.X + r.Width / 2, r.Y + r.Height / 2);
+                    DrawEllipseLines((int)c.X, (int)c.Y, r.Width / 2, r.Height / 2, Th.A(Th.Pink, 0.8f));
+                    for (int i = 0; i < 12; i++)
+                    {
+                        float a = i * MathF.Tau / 12, depth = MathF.Cos(a), sc = 0.55f + 0.7f * (depth + 1) / 2;
+                        var p = new Vector2(c.X + r.Width / 2 * MathF.Sin(a), c.Y + r.Height / 2 * depth);
+                        float w = 150 * sc, h = 210 * sc;
+                        DrawRectangleLinesEx(new Rectangle(p.X - w / 2, p.Y - h * 0.85f, w, h), 2, Th.A(Th.PinkPale, 0.35f + 0.4f * (depth + 1) / 2));
+                    }
+                    Ui.Text("转盘区域（椭圆 = 座位所在的圈）", c.X, r.Y - 30, 20, Th.PinkPale, Align.Center);
+                }
                 break;
         }
         if (!string.IsNullOrEmpty(n.Text)) DrawLabel(n, r, op);

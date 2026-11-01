@@ -27,7 +27,7 @@ public static class Inspector
         ["ItemSlotsPerCard"] = "每卡道具槽",
     };
     static readonly HashSet<string> AssetProps = new() { "Image", "HoverImage", "Icon", "Portrait", "FullArt", "EditorReference" };
-    const float LabelW = 120;
+    static float LabelW => 120 * Theme.FontSize / 18f;
 
     public static string LabelOf(PropertyInfo p) =>
         p.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? Labels.GetValueOrDefault(p.Name, p.Name);
@@ -257,7 +257,7 @@ public static class EffectsEditor
         ImGui.TextUnformatted(p.Name);
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip((p.Kind switch { "target" => Help.Targets, "expr" => Help.Formula, _ => p.Kind } + (string.IsNullOrEmpty(p.Desc) ? "" : "\n" + p.Desc)).Replace("%", "%%"));
-        ImGui.SameLine(110);
+        ImGui.SameLine(110 * Theme.FontSize / 18f);
         ImGui.SetNextItemWidth(-1);
         bool ch = false;
         IEnumerable<string> opts = p.Kind switch

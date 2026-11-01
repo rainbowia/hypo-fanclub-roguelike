@@ -12,7 +12,7 @@ public class TitleScene : Scene, IUiHost
 {
     float _t;
     LayoutView _layout;
-    public override void Enter() { var l = App.Db.LayoutFor("title"); _layout = l != null ? new LayoutView(l, this) : null; }
+    public override void Enter() { Sfx.Music("title"); var l = App.Db.LayoutFor("title"); _layout = l != null ? new LayoutView(l, this) : null; }
     GameRunner IUiHost.Game => null;
     public bool TryGet(string name, out double num, out string str)
     {
@@ -100,7 +100,7 @@ public class GalleryScene : Scene
         if (Ui.Button(Ui.R(Ui.W - 180, 40, 140, 52), "返回")) App.Go(new TitleScene());
 
         const int cols = 5; float cw = 270, ch = 180, gap = 22, x0 = 60, y0 = 130 - _scroll;
-        BeginScissorMode(0, 120, Ui.W, Ui.H - 120);
+        Ui.Clip(0, 120, Ui.W, Ui.H - 120);
         for (int i = 0; i < list.Count; i++)
         {
             var g = list[i];
@@ -114,7 +114,7 @@ public class GalleryScene : Scene
             Ui.Text(open ? App.Db.T(g.Title) : "？？？", r.X + 4, r.Y + r.Height + 8, 20, open ? Th.PinkPale : Th.Grey);
             if (open && Ui.Clicked(r)) _view = i;
         }
-        EndScissorMode();
+        Ui.EndClip();
 
         if (_view >= 0)
         {

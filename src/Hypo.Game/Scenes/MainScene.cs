@@ -38,6 +38,8 @@ public partial class MainScene : Scene
     public override void Enter()
     {
         G.OnEvent += OnGameEvent;
+        G.OnEvent += Sfx.OnGameEvent;
+        Sfx.Music(G.State.InBoss ? "boss" : "main");
         InitLayout();
     }
 
@@ -123,8 +125,8 @@ public partial class MainScene : Scene
         _resolver = G.ResolveRound().GetEnumerator();
         _stepT = 0.3f;
     }
-    void EnterSeat() { if (S.Phase != Phase.Prepare) return; _seatView = true; _phone = false; _calendar = false; _ringTarget = NearestAngle(0); }
-    void ExitSeat() { _seatView = false; _sel = null; _drag = null; }
+    void EnterSeat() { if (S.Phase != Phase.Prepare) return; Sfx.Play("view_seat"); _seatView = true; _phone = false; _calendar = false; _ringTarget = NearestAngle(0); }
+    void ExitSeat() { if (_seatView) Sfx.Play("view_normal"); _seatView = false; _sel = null; _drag = null; }
 
     // ======================================================================
     public override void Draw()
@@ -177,8 +179,17 @@ public partial class MainScene : Scene
     void DrawWheel()
     {
         // 正面：椭圆环（近大远小）；俯视：正圆。按 _top 插值。
-        var center = Vector2.Lerp(new Vector2(800, 300), new Vector2(800, 430), _top);
-        float rx = Lerp(470, 330, _top), ry = Lerp(120, 330, _top);
+        // 普通视角的转盘区域：HUD 布局里有名为「转盘」的对象就用它的矩形（中心 + 半宽/半高），否则用默认值
+        var front = new Rectangle(330, 250, 940, 260);
+        var ringNode = _hud?.Layout.Find("转盘");
+        if (ringNode != null)
+        {
+            var rr = _hud.RectOf(ringNode);
+            if (rr.Width <= 0) { _hud.Compute(); rr = _hud.RectOf(ringNode); }
+            if (rr.Width > 0) front = rr;
+        }
+        var center = Vector2.Lerp(new Vector2(front.X + front.Width / 2, front.Y + front.Height / 2), new Vector2(800, 430), _top);
+        float rx = Lerp(front.Width / 2, 330, _top), ry = Lerp(front.Height / 2, 330, _top);
         float step = MathF.Tau / 12;
         var order = new int[12];
         for (int i = 0; i < 12; i++)
@@ -195,7 +206,12 @@ public partial class MainScene : Scene
         Array.Sort(order, (a, b) => _slotDepth[a].CompareTo(_slotDepth[b]));
 
         // 圆桌
-        DrawEllipse((int)center.X, (int)(center.Y + Lerp(10, 0, _top)), rx * 0.82f, ry * 0.82f, Th.A(Th.Wine, Lerp(0.55f, 0.35f, _top)));
+        // 圆桌：有素材用素材（正面 ring_table / 俯视 ring_table_top 交叉淡入），否则画椭圆
+        var tableRect = new Rectangle(center.X - rx * 1.05f, center.Y - ry * 1.05f + Lerp(10, 0, _top), rx * 2.1f, ry * 2.1f);
+        bool hasTable = Art.T(Art.Table).HasValue;
+        if (hasTable) Art.Stretch(Art.Table, tableRect, Th.A(Color.White, 1 - _top));
+        if (Art.T(Art.TableTop).HasValue) Art.Stretch(Art.TableTop, tableRect, Th.A(Color.White, hasTable ? _top : 1));
+        else if (!hasTable) DrawEllipse((int)center.X, (int)(center.Y + Lerp(10, 0, _top)), rx * 0.82f, ry * 0.82f, Th.A(Th.Wine, Lerp(0.55f, 0.35f, _top)));
 
         int hover = -1;
         bool blockedByPhone = _phoneX < 0.9f && Ui.Mouse.X > 1150;
@@ -210,7 +226,12 @@ public partial class MainScene : Scene
             else CardView.Draw(c, _slotRects[i], alpha, c == _sel, i == _activeSlot);
             if (_top > 0.5f) Ui.Text((i + 1).ToString(), _slotRects[i].X + 4, _slotRects[i].Y - 22, 18, Th.A(Th.PinkPale, _top));
         }
-        if (_activeSlot >= 0) Ui.Sparkle(new Vector2(_slotRects[_activeSlot].X + _slotRects[_activeSlot].Width / 2, _slotRects[_activeSlot].Y - 30), 22, Th.Gold);
+        if (_activeSlot >= 0)
+        {
+            var pc = new Vector2(_slotRects[_activeSlot].X + _slotRects[_activeSlot].Width / 2, _slotRects[_activeSlot].Y - 30);
+            float bob = MathF.Sin((float)GetTime() * 6) * 5;
+            if (!Art.Draw(Art.Pointer, Ui.R(pc.X - 28, pc.Y - 40 + bob, 56, 56), Color.White)) Ui.Sparkle(pc + new Vector2(0, bob), 22, Th.Gold);
+        }
 
         // ---------- 交互 ----------
         if (hover >= 0 && Ui.Click && S.Phase == Phase.Prepare && _resolver == null)

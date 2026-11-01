@@ -25,6 +25,8 @@ public static class Art
     public const string Boss = "Icons1_Boss", Event = "Icons1_EventSmall", Person = "Icons1_personellSmall", Item = "Icons1_ItemSmall";
     public const string AppMember = "Icons1_Personel", AppHypo = "Icons1_HYPO", AppKeeper = "Icons1_Codex", AppGuest = "Icons1_Boss";
     public const string TutFigure = "Icons1_TutFigure";
+    // 转盘（待补素材）
+    public const string Table = "ring_table", TableTop = "ring_table_top", Pointer = "ring_pointer";
 
     /// <summary>四维（理智 欲望 爱情 躯体）彩色图标 / 扁平图标 / 环形分段（上右下左）。</summary>
     public static readonly string[] StatIcon = { "Icons3_Sanity", "Icons3_Desire", "Icons3_Love", "Icons3_Stamina" };

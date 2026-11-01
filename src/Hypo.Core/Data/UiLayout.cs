@@ -76,6 +76,7 @@ public class UiNode
     [Category("进度条"), DisplayName("当前值"), Description("公式，例 pleasure")] public string BarValue { get; set; } = "";
     [Category("进度条"), DisplayName("最大值"), Description("公式，例 target")] public string BarMax { get; set; } = "";
     [Category("进度条"), DisplayName("进度颜色")] public string BarColor { get; set; } = "#E25080FF";
+    [Category("进度条"), DisplayName("填充图片"), Description("设置后用图片按比例裁切当作进度（例：Icons1_pleasureBarFill），不再画颜色")] public string FillImage { get; set; } = "";
 
     [Browsable(false)] public List<UiBehaviour> Behaviours { get; set; } = new();
 }

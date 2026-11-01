@@ -58,7 +58,7 @@ public partial class MainScene
             Ui.Text(Apps[_app].name + "  " + Apps[_app].sub, screen.X + 16, screen.Y + 12, 24, Th.Pink);
             var body = Ui.R(screen.X + 10, screen.Y + 50, screen.Width - 20, screen.Height - 60);
             if (Ui.Hover(body)) _phoneScroll = Math.Max(0, _phoneScroll - Ui.Wheel * 50);
-            BeginScissorMode((int)body.X, (int)body.Y, (int)body.Width, (int)body.Height);
+            Ui.Clip(body.X, body.Y, body.Width, body.Height);
             switch (_app)
             {
                 case 0: AppMembers(body); break;
@@ -66,7 +66,7 @@ public partial class MainScene
                 case 2: AppItems(body); break;
                 case 3: AppDex(body); break;
             }
-            EndScissorMode();
+            Ui.EndClip();
         }
         Ui.Eat(p);
     }

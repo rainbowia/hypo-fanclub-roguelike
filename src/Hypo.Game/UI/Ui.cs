@@ -36,7 +36,7 @@ public enum TextStyle { Body, Title }
 /// </summary>
 public static class Fonts
 {
-    const int BaseSize = 64;
+    const int BaseSize = 96;
 
     class Slot
     {
@@ -52,7 +52,7 @@ public static class Fonts
             if (Loaded) UnloadFont(Font);
             var arr = Cps.ToArray();
             Font = LoadFontEx(Path, BaseSize, arr, arr.Length);
-            SetTextureFilter(Font.Texture, TextureFilter.Bilinear);
+            var ft = Font.Texture; GenTextureMipmaps(ref ft); SetTextureFilter(ft, TextureFilter.Trilinear); Font.Texture = ft;
             Loaded = true; Dirty = false;
         }
     }
@@ -167,6 +167,11 @@ public enum Align { Left, Center, Right }
 public static class Ui
 {
     public const int W = 1600, H = 900;
+    /// <summary>虚拟画布 → 屏幕的缩放与偏移（裁剪区域换算用）。</summary>
+    public static float Scale = 1; public static Vector2 Offset;
+    public static void Clip(float x, float y, float w, float h) =>
+        BeginScissorMode((int)(Offset.X + x * Scale), (int)(Offset.Y + y * Scale), (int)Math.Ceiling(w * Scale), (int)Math.Ceiling(h * Scale));
+    public static void EndClip() => EndScissorMode();
     public static Vector2 Mouse;
     public static bool Click => IsMouseButtonPressed(MouseButton.Left) && !Consumed;
     public static bool Released => IsMouseButtonReleased(MouseButton.Left);
@@ -175,7 +180,7 @@ public static class Ui
     public static bool Consumed;
     public static float Wheel;
     public static bool Hover(Rectangle r) => CheckCollisionPointRec(Mouse, r);
-    public static bool Clicked(Rectangle r) { if (Click && Hover(r)) { Consumed = true; return true; } return false; }
+    public static bool Clicked(Rectangle r) { if (Click && Hover(r)) { Consumed = true; Sfx.Play("ui_click"); return true; } return false; }
     public static void Eat(Rectangle r) { if (IsMouseButtonPressed(MouseButton.Left) && Hover(r)) Consumed = true; }
 
     public static Rectangle R(float x, float y, float w, float h) => new(x, y, w, h);
@@ -305,7 +310,7 @@ public static class Ui
     }
     public static void Hatch(Rectangle r, Color c)
     {
-        BeginScissorMode((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height);
+        Clip(r.X, r.Y, r.Width, r.Height);
         for (float x = r.X - r.Height; x < r.X + r.Width; x += 14)
             DrawLineEx(new Vector2(x, r.Y + r.Height), new Vector2(x + r.Height, r.Y), 2, c);
         EndScissorMode();
@@ -331,7 +336,8 @@ public static class Assets
         if (File.Exists(p))
         {
             var tex = LoadTexture(p);
-            SetTextureFilter(tex, TextureFilter.Bilinear);
+            GenTextureMipmaps(ref tex);                       // 大图缩小显示时不再锯齿/闪烁
+            SetTextureFilter(tex, TextureFilter.Trilinear);
             res = tex;
         }
         _cache[rel] = res;

@@ -53,6 +53,8 @@ public static class Studio
         Fonts.Init(Path.Combine(DataDir, "assets", "fonts"));
         rlImGui.Setup(true);
         Theme.Apply();
+        Theme.FontSize = StudioPrefs.Load().FontSize;
+        if (Theme.FontSize <= 0) Theme.FontSize = MathF.Round(MathF.Max(20, 18 * Raylib.GetWindowScaleDPI().X));
         Theme.LoadFont(DataDir);
         Blocks.LoadPlugins(Path.Combine(Root, "mods"));
         ReloadGameDb();
@@ -76,6 +78,7 @@ public static class Studio
             if (Raylib.WindowShouldClose()) { if (Dirty) _quitAsked = true; else _quit = true; }
             Raylib.BeginDrawing();
             Raylib.ClearBackground(new Color(22, 18, 22, 255));
+            if (Theme.PendingSize > 0) { Theme.FontSize = Theme.PendingSize; Theme.PendingSize = 0; Theme.LoadFont(DataDir); new StudioPrefs { FontSize = Theme.FontSize }.Save(); }
             Workspaces[Current].PreRender();
             rlImGui.Begin();
             Frame();
@@ -122,6 +125,8 @@ public static class Studio
         // ---------- 快捷键 ----------
         if (io.KeyCtrl && ImGui.IsKeyPressed(ImGuiKey.S)) SaveAll();
         if (ImGui.IsKeyPressed(ImGuiKey.F5) && !io.WantTextInput) RunGame();
+        if (io.KeyCtrl && (ImGui.IsKeyPressed(ImGuiKey.Equal) || ImGui.IsKeyPressed(ImGuiKey.KeypadAdd))) Theme.PendingSize = Math.Min(40, Theme.FontSize + 2);
+        if (io.KeyCtrl && (ImGui.IsKeyPressed(ImGuiKey.Minus) || ImGui.IsKeyPressed(ImGuiKey.KeypadSubtract))) Theme.PendingSize = Math.Max(12, Theme.FontSize - 2);
 
         // ---------- 菜单 ----------
         float menuH = 0;
@@ -134,6 +139,15 @@ public static class Studio
                 if (ImGui.MenuItem("打开数据目录")) Process.Start(new ProcessStartInfo { FileName = DataDir, UseShellExecute = true });
                 ImGui.Separator();
                 if (ImGui.MenuItem("退出")) { if (Dirty) _quitAsked = true; else _quit = true; }
+                ImGui.EndMenu();
+            }
+            if (ImGui.BeginMenu("视图"))
+            {
+                ImGui.TextDisabled($"当前字号 {Theme.FontSize}");
+                if (ImGui.MenuItem("字号 放大", "Ctrl+=")) Theme.PendingSize = Math.Min(40, Theme.FontSize + 2);
+                if (ImGui.MenuItem("字号 缩小", "Ctrl+-")) Theme.PendingSize = Math.Max(12, Theme.FontSize - 2);
+                foreach (var sz in new[] { 18f, 22f, 26f, 30f })
+                    if (ImGui.MenuItem($"字号 {sz}", null, Theme.FontSize == sz)) Theme.PendingSize = sz;
                 ImGui.EndMenu();
             }
             if (ImGui.BeginMenu("运行"))
@@ -153,7 +167,8 @@ public static class Studio
         }
 
         float W = Raylib.GetScreenWidth(), H = Raylib.GetScreenHeight();
-        float toolH = 46, leftW = MathF.Max(260, W * 0.17f), rightW = MathF.Max(340, W * 0.24f), bottomH = MathF.Max(180, H * 0.24f);
+        float k = Theme.FontSize / 18f;
+        float toolH = 30 * k + 16, leftW = MathF.Max(260 * k, W * 0.17f), rightW = MathF.Max(340 * k, W * 0.25f), bottomH = MathF.Max(180 * k, H * 0.24f);
         float top = menuH + toolH, midH = H - top - bottomH;
 
         // ---------- 工具栏：工作区切换 ----------
@@ -165,12 +180,12 @@ public static class Studio
             if (i > 0) ImGui.SameLine();
             bool on = i == Current;
             if (on) ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
-            if (ImGui.Button(Workspaces[i].Name, new Vector2(0, 30))) Current = i;
+            if (ImGui.Button(Workspaces[i].Name, new Vector2(0, 30 * k))) Current = i;
             if (on) ImGui.PopStyleColor();
         }
-        ImGui.SameLine(W - 150);
+        ImGui.SameLine(W - 150 * k);
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.25f, 0.55f, 0.35f, 1));
-        if (ImGui.Button("▶ 运行游戏", new Vector2(130, 30))) RunGame();
+        if (ImGui.Button("▶ 运行游戏", new Vector2(130 * k, 30 * k))) RunGame();
         ImGui.PopStyleColor();
         ImGui.End();
 
@@ -281,6 +296,7 @@ public static class Theme
         0x3000, 0x30FF, 0x31F0, 0x31FF, 0x4E00, 0x9FAF, 0xFF00, 0xFFEF, 0
     };
     static GCHandle _rangesHandle;
+    public static float FontSize = 22, PendingSize;
 
     public static void Apply()
     {
@@ -335,10 +351,23 @@ public static class Theme
         io.Fonts.Clear();
         if (f != null)
         {
-            _rangesHandle = GCHandle.Alloc(Ranges, GCHandleType.Pinned);
-            io.Fonts.AddFontFromFileTTF(f, 18f, new ImFontConfigPtr(IntPtr.Zero), _rangesHandle.AddrOfPinnedObject());
+            if (!_rangesHandle.IsAllocated) _rangesHandle = GCHandle.Alloc(Ranges, GCHandleType.Pinned);
+            io.Fonts.AddFontFromFileTTF(f, FontSize, new ImFontConfigPtr(IntPtr.Zero), _rangesHandle.AddrOfPinnedObject());
         }
         else io.Fonts.AddFontDefault();
         rlImGui.ReloadFonts();
     }
+}
+
+/// <summary>编辑器个人设置（%AppData%/HypoFanclub/studio.json）。</summary>
+public class StudioPrefs
+{
+    public float FontSize { get; set; }
+    static string File_ => Path.Combine(Hypo.Core.Persistence.Paths.Root, "studio.json");
+    public static StudioPrefs Load()
+    {
+        try { if (File.Exists(File_)) return System.Text.Json.JsonSerializer.Deserialize<StudioPrefs>(File.ReadAllText(File_)) ?? new(); } catch { }
+        return new StudioPrefs();
+    }
+    public void Save() { try { File.WriteAllText(File_, System.Text.Json.JsonSerializer.Serialize(this)); } catch { } }
 }
