@@ -34,15 +34,30 @@ public static class ScriptHost
         .AddImports("System", "System.Linq", "System.Collections.Generic",
                     "Hypo.Core.Data", "Hypo.Core.Runtime", "Hypo.Core.Effects");
 
-    public static ScriptRunner<object> Compile(string code)
+    static readonly ConcurrentDictionary<string, ScriptRunner<object>> _uiCache = new();
+
+    static ScriptRunner<object> Build(string code, Type globals)
     {
-        return _cache.GetOrAdd(code, c =>
-        {
-            var s = CSharpScript.Create<object>(c, _opt, typeof(ScriptGlobals));
-            var diags = s.Compile().Where(d => d.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).ToList();
-            if (diags.Count > 0) throw new CompilationErrorException(string.Join("\n", diags), diags.ToImmutableArray());
-            return s.CreateDelegate();
-        });
+        var s = CSharpScript.Create<object>(code, _opt, globals);
+        var diags = s.Compile().Where(d => d.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).ToList();
+        if (diags.Count > 0) throw new CompilationErrorException(string.Join("\n", diags), diags.ToImmutableArray());
+        return s.CreateDelegate();
+    }
+
+    public static ScriptRunner<object> Compile(string code) => _cache.GetOrAdd(code, c => Build(c, typeof(ScriptGlobals)));
+
+    // ---------- UI 代码块（全局对象是 UiScriptGlobals：Host / Layout / Node / Game / Cmd / Find） ----------
+    public static string ValidateUi(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return null;
+        try { _uiCache.TryRemove(code, out _); _uiCache.GetOrAdd(code, c => Build(c, typeof(UiScriptGlobals))); return null; }
+        catch (Exception e) { return e.Message; }
+    }
+    public static object RunUi(string code, UiScriptGlobals g)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return null;
+        try { return _uiCache.GetOrAdd(code, c => Build(c, typeof(UiScriptGlobals)))(g).GetAwaiter().GetResult(); }
+        catch (Exception e) { Log.Warn($"[UI脚本 {g.Node?.Name}] {e.Message}"); return null; }
     }
 
     /// <summary>编辑器用：返回错误文本（null = 编译通过）。</summary>

@@ -38,6 +38,7 @@ public partial class MainScene : Scene
     public override void Enter()
     {
         G.OnEvent += OnGameEvent;
+        InitLayout();
     }
 
     void OnGameEvent(GameEvent e)
@@ -132,9 +133,10 @@ public partial class MainScene : Scene
         bool block = Ui.Consumed;          // 设置面板打开时为 true
         if (modal) Ui.Consumed = true;
 
+        if (_hud != null && !_seatView) _hud.Input();   // 布局按钮先抢点击
         DrawBackground();
         DrawWheel();
-        if (_seatView) DrawSeatUi(); else DrawHud();
+        if (_seatView) DrawSeatUi(); else if (_hud != null) { _hud.Draw(); DrawResolveLog(); } else DrawHud();
         DrawPhone();
 
         foreach (var f in _floats)

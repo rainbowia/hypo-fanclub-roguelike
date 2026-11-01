@@ -1,14 +1,44 @@
 using System.Numerics;
+using Hypo.Core.Data;
 using Hypo.Core.Persistence;
+using Hypo.Core.Runtime;
 using Hypo.Game.UI;
 using Raylib_cs;
 using static Raylib_cs.Raylib;
 
 namespace Hypo.Game.Scenes;
 
-public class TitleScene : Scene
+public class TitleScene : Scene, IUiHost
 {
     float _t;
+    LayoutView _layout;
+    public override void Enter() { var l = App.Db.LayoutFor("title"); _layout = l != null ? new LayoutView(l, this) : null; }
+    GameRunner IUiHost.Game => null;
+    public bool TryGet(string name, out double num, out string str)
+    {
+        num = 0; str = null;
+        switch (name)
+        {
+            case "has_save": num = SaveSystem.Exists(0) ? 1 : 0; return true;
+            case "runs": num = App.Profile.Runs; return true;
+            case "cards": num = App.Db.Cards.Count; return true;
+            case "bosses": num = App.Db.Bosses.Count; return true;
+        }
+        return false;
+    }
+    public void Command(string cmd, string arg)
+    {
+        switch (cmd)
+        {
+            case "NewGame": App.NewGame(); break;
+            case "Continue": if (SaveSystem.Exists(0)) App.LoadGame(0); break;
+            case "LoadMenu": App.SettingsUi.Show(false, 2); break;
+            case "OpenGallery": App.Go(new GalleryScene()); break;
+            case "OpenSettings": App.SettingsUi.Show(false); break;
+            case "Quit": App.Quit = true; break;
+            case "Log": Hypo.Core.Data.Log.Info(arg); break;
+        }
+    }
     public override void Update(float dt)
     {
         _t += dt;
@@ -17,6 +47,7 @@ public class TitleScene : Scene
 
     public override void Draw()
     {
+        if (_layout != null) { _layout.Input(); _layout.Draw(); return; }
         var bg = Assets.UiTex("title_bg");
         if (bg.HasValue) Assets.Draw(bg.Value, Ui.R(0, 0, Ui.W, Ui.H), Color.White, true);
         else

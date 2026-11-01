@@ -45,13 +45,16 @@ public partial class MainScene
         // 右下：手机
         if (Ui.IconButton(Ui.R(1480, 770, 96, 116), "assets/ui/icon_phone.png", "▯")) { _phone = !_phone; _app = -1; }
 
-        // 结算日志（右侧小字）
-        if (_resolver != null || S.Phase != Phase.Prepare)
-        {
-            int n = 0;
-            foreach (var line in G.ResolveLog.TakeLast(10))
-                Ui.Text(line, 1180, 160 + n++ * 24, 18, Th.A(Th.PinkPale, 0.8f));
-        }
+        DrawResolveLog();
+    }
+
+    /// <summary>结算日志（右侧小字）</summary>
+    void DrawResolveLog()
+    {
+        if (_resolver == null && S.Phase == Phase.Prepare) return;
+        int n = 0;
+        foreach (var line in G.ResolveLog.TakeLast(10))
+            Ui.Text(line, 1180, 160 + n++ * 24, 18, Th.A(Th.PinkPale, 0.8f));
     }
 
     void DrawPleasure()

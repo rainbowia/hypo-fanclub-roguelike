@@ -26,6 +26,9 @@ public class ContentDb
     public Dictionary<string, BossDef> Bosses { get; } = new();
     public Dictionary<string, HypnoDef> Hypnos { get; } = new();
     public Dictionary<string, DayEventDef> Events { get; } = new();
+    public Dictionary<string, UiLayout> Layouts { get; } = new();
+    /// <summary>取替换某内置界面的布局（hud / title），没有返回 null。</summary>
+    public UiLayout LayoutFor(string replaces) => Layouts.Values.FirstOrDefault(l => l.Enabled && l.Replaces == replaces);
     public List<GalleryDef> Gallery { get; private set; } = new();
     public RulesDef Rules { get; private set; } = new();
     public TextDb Text { get; } = new();
@@ -38,6 +41,7 @@ public class ContentDb
         db.LoadDir<BossDef>("bosses", d => db.Bosses[d.Id] = d);
         db.LoadDir<HypnoDef>("hypno", d => db.Hypnos[d.Id] = d);
         db.LoadDir<DayEventDef>("events", d => db.Events[d.Id] = d);
+        db.LoadDir<UiLayout>("ui", d => db.Layouts[d.Id] = d);
         var g = Path.Combine(root, "gallery.json");
         if (File.Exists(g)) db.Gallery = JsonSerializer.Deserialize<List<GalleryDef>>(File.ReadAllText(g), Json) ?? new();
         var r = Path.Combine(root, "rules.json");
