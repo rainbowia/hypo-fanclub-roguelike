@@ -316,7 +316,7 @@ public static class Theme
         c[(int)ImGuiCol.Separator] = new Vector4(0.30f, 0.24f, 0.28f, 1);
         c[(int)ImGuiCol.Tab] = frame;
         c[(int)ImGuiCol.TabHovered] = new Vector4(0.55f, 0.22f, 0.38f, 1);
-        c[(int)ImGuiCol.TabActive] = new Vector4(0.42f, 0.17f, 0.30f, 1);
+        c[(int)ImGuiCol.TabSelected] = new Vector4(0.42f, 0.17f, 0.30f, 1);
         c[(int)ImGuiCol.TextSelectedBg] = new Vector4(0.80f, 0.27f, 0.47f, 0.45f);
         c[(int)ImGuiCol.DragDropTarget] = AccentHi;
         c[(int)ImGuiCol.ScrollbarBg] = new Vector4(0, 0, 0, 0);
